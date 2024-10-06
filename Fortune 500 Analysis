@@ -60,37 +60,37 @@ VALUES
 
 # Analysis
 
-# How many companies provide maternity leave of 10 or more weeks, and how many provide less than 10 weeks?
-SELECT company_name,
-CASE 
-  WHEN maternity_leave_weeks >= 10 THEN '10 or more weeks'
-  ELSE 'Less than 10 weeks'
-  END AS maternity_leave_category,
-COUNT(*) AS number_of_companies
+# Group the companies as "good", "acceptable", or "poor" based on how much paid time off is offered.
+SELECT company_name, paid_time_off_days,
+CASE
+	WHEN paid_time_off_days >=20 THEN 'good'
+    WHEN paid_time_off_days >=15 THEN 'acceptable'
+    ELSE 'poor'
+END as pto_rating
 FROM fortune_companies
-GROUP BY maternity_leave_category;
+ORDER BY paid_time_off_days desc;
 
 # Which industries have an average revenue of at least $250 billion across all companies?
 SELECT industry, AVG(revenue) AS avg_revenue
 FROM fortune_companies
 GROUP BY industry
-HAVING AVG(revenue) >= 250;
+HAVING avg_revenue >= 250;
 
-# Which companies in the "Technology" or "Retail" industries offer healthcare benefits and have at least 20 days of paid time off?
-SELECT company_name, industry, paid_time_off_days, healthcare_benefits
+# Which companies offer at least 20 days of paid time off and at least 10 weeks of maternity leave?
+SELECT company_name
 FROM fortune_companies
-WHERE (industry = 'Technology' OR industry = 'Retail')
-AND healthcare_benefits = 1 
-AND paid_time_off_days >= 20;
+WHERE paid_time_off_days >=20
+AND maternity_leave_weeks >=10;
 
-# What is the total number of employees and the average employee tenure in the "Healthcare" industry?
-SELECT SUM(employees) AS total_employees, AVG(avg_employee_tenure) AS avg_tenure
-FROM fortune_companies
-WHERE industry = 'Healthcare';
-
-# How many companies have more than 2,000 employees, provide at least 18 days of paid time off, and have an average employee tenure of 6 years or more?
+# How many companies in the technology industry have an average employee tenure of at least 6 years?
 SELECT company_name, COUNT(*) AS company_count
 FROM fortune_companies
-WHERE employees > 2000 
-AND paid_time_off_days >= 18 
-AND avg_employee_tenure >= 6;
+WHERE industry='Technology'
+AND avg_employee_tenure >=6;
+
+# What is the average revenue for companies in each industry that provide healthcare benefits and offer more than 15 days of paid time off?
+SELECT industry, AVG(revenue) AS avg_revenue
+FROM fortune_companies
+WHERE healthcare_benefits = 1
+AND paid_time_off_days > 15
+GROUP BY industry;
